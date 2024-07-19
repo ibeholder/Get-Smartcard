@@ -1,7 +1,8 @@
 Function Get-Smartcard {
     $raw = certutil -scinfo -silent | Out-String
     $split = $raw -Split "--------------===========================--------------"
-
+    $nocard = $raw|select-string -pattern 'SCARD_STATE_EMPTY'
+    $nocard 
     $count = $split.Length
     $i = 1
     $certs = @()
@@ -25,6 +26,7 @@ Function Get-Smartcard {
                     Provider        = $table.Provider
                     'Key Container' = $table.'Key Container'
                     'Serial Number' = $table.'Serial Number'
+                    San = (certutil -v -silent -store -user My $table.Certificate|select-string -pattern '@') -Replace " ",''
                 }
                 $certs += $cert
             }
